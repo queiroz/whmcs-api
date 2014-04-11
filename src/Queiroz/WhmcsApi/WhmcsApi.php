@@ -1,15 +1,28 @@
 <?php namespace Queiroz\WhmcsApi;
 
+use Config;
+use SimpleXMLElement;
+use stdClass;
+use Illuminate\Config\Repository;
+
 class WhmcsApi 
 {
+	protected $curl;
+	protected $config;
+
+	public function __construct(Repository $config, WhmcsCurl $curl)
+	{
+		$this->curl = $curl;
+		$this->config = $config;
+	}
 
 	public function init($action, $actionParams)
 	{
 
 		$params = array();
-		$params['username']     = \Config::get('whmcs-api::username');
-		$params['password']     = md5(\Config::get('whmcs-api::password'));
-		$params['url']          = \Config::get('whmcs-api::url');
+		$params['username']     = $this->config->get('whmcs-api::username');
+		$params['password']     = md5($this->config->get('whmcs-api::password'));
+		$params['url']          = $this->config->get('whmcs-api::url');
 		$params['action']       = $action;
 
 		// merge $actionParams with $params
@@ -27,19 +40,7 @@ class WhmcsApi
 		// unset url
 		unset($params['url']);
 
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-		$data = curl_exec($ch);
-
-		if (curl_error($ch)) {
-			throw new ConnectionException("Connection Error: " . curl_errno($ch) . ' - ' . curl_error($ch));
-		}
-
-		curl_close($ch);
+		$data = $this->curl->request($url, $params);
 
 		// Identify XML result
 		$xml = preg_match('/(\<\?xml)/', $data);
@@ -54,7 +55,7 @@ class WhmcsApi
 
 	public function formatXml($input)
 	{
-		return new \SimpleXMLElement($input);
+		return new SimpleXMLElement($input);
 	}
 
 	public function formatObject($input)
@@ -62,7 +63,7 @@ class WhmcsApi
 
 		$results = explode(';' ,$input);
 
-		$object = new \stdClass(); // standard object
+		$object = new stdClass(); // standard object
 
 		foreach($results as $result) {
 

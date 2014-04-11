@@ -19,6 +19,8 @@ class WhmcsApiServiceProvider extends ServiceProvider {
 	public function boot()
 	{
 		$this->package('queiroz/whmcs-api');
+
+		$app = $this->app;
 	}
 
 	/**
@@ -29,9 +31,9 @@ class WhmcsApiServiceProvider extends ServiceProvider {
 	public function register()
 	{
 
-		$this->app['WhmcsApi'] = $this->app->share(function() {
+		$this->app['WhmcsApi'] = $this->app->share(function($app) {
 			
-			return new WhmcsApi();
+			return new WhmcsApi($app['config'], new WhmcsCurl);
 
 		});
 
