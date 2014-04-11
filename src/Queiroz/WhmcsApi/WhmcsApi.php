@@ -7,10 +7,10 @@ class WhmcsApi
 	{
 
 		$params = array();
-		$params['username'] 	= \Config::get('whmcs-api::username');
-		$params['password'] 	= md5(\Config::get('whmcs-api::password'));
-		$params['url'] 			= \Config::get('whmcs-api::url');
-		$params['action']		= $action;
+		$params['username']     = \Config::get('whmcs-api::username');
+		$params['password']     = md5(\Config::get('whmcs-api::password'));
+		$params['url']          = \Config::get('whmcs-api::url');
+		$params['action']       = $action;
 
 		// merge $actionParams with $params
 		$params = array_merge($params, $actionParams);
@@ -30,13 +30,13 @@ class WhmcsApi
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 100);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 5);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 		$data = curl_exec($ch);
 
 		if (curl_error($ch)) {
-			throw new \Exception("Connection Error: " . curl_errno($ch) . ' - ' . curl_error($ch));
+			throw new ConnectionException("Connection Error: " . curl_errno($ch) . ' - ' . curl_error($ch));
 		}
 
 		curl_close($ch);
@@ -78,10 +78,12 @@ class WhmcsApi
 
 	public function execute($action, $params)
 	{
-		
-		// Initiate
 		return $this->init($action, $params);
+	}
 
+	public function __call($method, $params)
+	{
+		return $this->execute($action, $params[0]);
 	}
 
 }
