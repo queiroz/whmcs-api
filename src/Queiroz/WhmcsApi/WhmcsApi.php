@@ -24,6 +24,7 @@ class WhmcsApi
 		$params['password']     = md5($this->config->get('whmcs-api::password'));
 		$params['url']          = $this->config->get('whmcs-api::url');
 		$params['action']       = $action;
+		$params["responsetype"] = "json";
 
 		// merge $actionParams with $params
 		$params = array_merge($params, $actionParams);
@@ -41,40 +42,8 @@ class WhmcsApi
 		unset($params['url']);
 
 		$data = $this->curl->request($url, $params);
-
-		// Identify XML result
-		$xml = preg_match('/(\<\?xml)/', $data);
 		
-		if($xml) {
-			return $this->formatXml($data);
-		} else {
-			return $this->formatObject($data);
-		}
-
-	}
-
-	public function formatXml($input)
-	{
-		return new SimpleXMLElement($input);
-	}
-
-	public function formatObject($input)
-	{
-
-		$results = explode(';' ,$input);
-
-		$object = new stdClass(); // standard object
-
-		foreach($results as $result) {
-
-			if(!empty($result)) {
-				$resultValue = explode('=', $result);
-				$object->$resultValue[0] = $resultValue[1];
-			}
-
-		}
-
-		return $object;
+		return json_decode($data);
 	}
 
 	public function execute($action, $params)
