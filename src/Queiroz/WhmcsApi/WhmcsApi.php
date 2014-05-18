@@ -27,7 +27,7 @@ class WhmcsApi
 		$params["responsetype"] = "json";
 
 		// merge $actionParams with $params
-		$params = array_merge($params, $actionParams);
+		$params = array_merge($actionParams, $params);
 
 		// call curl init connection
 		return $this->curl($params);
