@@ -1,16 +1,20 @@
-WHMCS-API
-=======
+Laravel WHMCS API
+=================
 
-Laravel 4 - Simple package for WHMCS external API
+Laravel 4 - Simple package for WHMCS external API. It actually forked from https://github.com/queiroz/whmcs-api, but it seems no longer maintained, so i reuse that repo.
 
 Installation
 ============
 
-Add whmcs-api to your composer.json file:
+Run this to install on your current project
+
+	$ composer require gufy/whmcs:dev-master 
+
+Or you can add this package to your composer.json file:
 
 
 	"require": {
-		"queiroz/whmcs-api": "dev-master"
+		"gufy/whmcs": "dev-master"
 	}
 
 
@@ -25,26 +29,28 @@ Configuration
 
 register this service provider at the bottom of the $providers array: app.php
 
-	'Queiroz\WhmcsApi\WhmcsApiServiceProvider'
+	'Gufy\Whmcs\WhmcsServiceProvider'
+
+#### Publish the configuration
+
+When this command is executed, the configuration files for your application will be copied to `app/config/packages/gufy/whmcs` where they can be safely modified by the developer!
+
+	php artisan config:publish gufy/whmcs
+
 
 #### Setting you API URL
 
-go to laravel/vendor/queiroz/whmcs-api/src/config/config.php and set the parameters
+go to laravel/vendor/gufy/whmcs/src/config/config.php and set the parameters
 
 
 	return array(
 
-		'username'	=>	'api-username',
-		'password'	=>	'api-password',
-		'url'		=>	'http://www.site.com/whmcs/includes/api.php', // API url
-
+		'username'		=>	'api-username',
+		'password'		=>	'api-password',
+		'url'			=>	'http://www.site.com/whmcs/includes/api.php', // API url
+		'responsetype'	=> 'json'
 	);
 
-#### Publish the configuration
-
-When this command is executed, the configuration files for your application will be copied to `app/config/packages/queiroz/whmcs-api` where they can be safely modified by the developer!
-
-	php artisan config:publish queiroz/whmcs-api
 
 Usage
 =====
@@ -56,7 +62,17 @@ Logging a user to WHMCS
 	$username = 'client';	// Client Username
 	$password = 'password'; // Client Password
 
-	$login = Whmcs::execute('validatelogin', array('email' => $username, 'password2' => $password));
+	$login = Whmcs::execute('validatelogin', array(
+		'email' => $username, 
+		'password2' => $password
+	));
+
+	// or
+
+	$login = Whmcs::validatelogin(array(
+		'email' => $username, 
+		'password2' => $password
+	));
 
 	if($login->result == 'success') {
 		echo 'User Logged In';
