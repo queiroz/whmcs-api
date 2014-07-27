@@ -1,7 +1,6 @@
 <?php namespace Queiroz\WhmcsApi;
 
 use Config;
-use SimpleXMLElement;
 use stdClass;
 use Illuminate\Config\Repository;
 
@@ -22,7 +21,6 @@ class WhmcsApi
 		$params = array();
 		$params['username']     = $this->config->get('whmcs-api::username');
 		$params['password']     = md5($this->config->get('whmcs-api::password'));
-		$params['url']          = $this->config->get('whmcs-api::url');
 		$params['action']       = $action;
 		$params["responsetype"] = "json";
 
@@ -36,12 +34,7 @@ class WhmcsApi
 
 	public function curl($params)
 	{
-		// set url
-		$url = $params['url'];
-		// unset url
-		unset($params['url']);
-
-		$data = $this->curl->request($url, $params);
+		$data = $this->curl->request($this->config->get('whmcs-api::url'), $params);
 		
 		return json_decode($data);
 	}
