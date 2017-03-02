@@ -29,6 +29,13 @@ class WhmcsApi
 
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
+		// if whmcs on dev licence and in Password Protect Directory
+		$pass = \Config::get('whmcs-api::dirpass');
+		$user = \Config::get('whmcs-api::diruser');
+		if( !empty( $pass ) && !empty( $user ) )
+		{
+			curl_setopt($ch, CURLOPT_USERPWD, $user.":".$pass);
+		}
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 100);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -46,7 +53,13 @@ class WhmcsApi
 		
 		if($xml) {
 			return $this->formatXml($data);
-		} else {
+		} 
+		elseif( isset( $params['responsetype'] ) && $params['responsetype'] == 'json' )
+		{
+			return $data;
+		}
+		else 
+		{
 			return $this->formatObject($data);
 		}
 
